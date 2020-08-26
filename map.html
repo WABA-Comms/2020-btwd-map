@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no"/>
+
+    <title>Pit Stops</title>
+
+    <!-- Mapbox GL JS -->
+    <script src='https://api.mapbox.com/mapbox-gl-js/v1.8.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v1.8.0/mapbox-gl.css' rel='stylesheet'/>
+
+    <!-- Geocoder -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.4.2/mapbox-gl-geocoder.min.js"></script>
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.4.2/mapbox-gl-geocoder.css" type="text/css"/>
+
+    <!-- Promise polyfill script required to use Mapbox GL Geocoder in IE 11 -->
+    <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
+    
+    <style>
+
+        html, body {
+            height: 100%;
+        }
+    
+        #map {
+            position: absolute; 
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 100%; 
+        }
+        .mapboxgl-popup {
+            max-width: 400px;
+            font-size: 16px;
+            font-family: Arial, Helvetica, sans-serif;
+            text-align: center;
+        }
+        .blue-button {
+            text-transform: uppercase;
+            font-size: 14px;
+            text-align: center;
+            vertical-align: baseline;
+            font-weight: normal;
+            height: 37px;
+            padding: 10px 24px;
+            margin-top: 5px;
+            border-radius: 1px;
+            display: inline-block;
+            letter-spacing: 0.5px;
+            color: #fff;
+            background-color: #0072b8;
+            border: 0;
+        }
+    
+        .blue-button:hover {
+            background-color: #F04E98;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div id='map'></div>
+
+
+    <script>
+        // Initialize map
+        mapboxgl.accessToken = 'pk.eyJ1IjoiY29saW53YWJhIiwiYSI6InBNSExzWUEifQ.TClbaHblqfSFgUbfp1gSbg'; // replace this with the correct access token
+        var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/colinwaba/ck725jaei06qg1io3yk3fao9q' // replace this with the style id containing BTWD data
+        });
+
+        // Configure popup
+        map.on('click', function(e) {
+            var features = map.queryRenderedFeatures(e.point, {
+                layers: ['2020-btwd-pitstop-mapbox'] // replace this with the name of the layer
+            });
+
+            // if the feature doesn't exist, do nothing
+            if (!features.length) {
+                return;
+            }
+
+            // use indexing to get the first feature in the array of features clicked
+            var feature = features[0];
+
+            // initialize the popup
+            var popup = new mapboxgl.Popup({ offset: [0, -15] })
+                .setLngLat(feature.geometry.coordinates)
+                // set the content of the popup using the name and the url properties
+                .setHTML(
+                    '<p>' + feature.properties.Name + '<br><a href="' + feature.properties.URL + '" target="blank"><button class="blue-button">Click me!</button></a></p>'
+                )
+                .addTo(map);
+        });
+
+
+        // Configure geocoder search box
+        map.addControl(
+            new MapboxGeocoder({
+                accessToken: mapboxgl.accessToken,
+                mapboxgl: mapboxgl
+            })
+        );
+
+    </script>
+  
+</body>
+
+</html>
